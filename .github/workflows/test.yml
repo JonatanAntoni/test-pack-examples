@@ -48,6 +48,14 @@ on:
               "pack": "NXP::FRDM-K32L2A4S_BSP@18.0.0",
               "project": "boards/frdmk32l2a4s/demo_apps/hello_world/hello_world.csolution.yml",
               "context": "hello_world.release+mdk"
+            }, {
+              "pack": "NXP::EVK-MIMXRT1064_BSP@17.0.0",
+              "project": "boards/evkmimxrt1064/demo_apps/hello_world/hello_world.csolution.yml",
+              "context": "hello_world.release+mdk"
+            }, {
+              "pack": "NXP::EVK-MIMXRT1064_BSP@18.0.0",
+              "project": "boards/evkmimxrt1064/demo_apps/hello_world/hello_world.csolution.yml",
+              "context": "hello_world.release+mdk"
             } ]
           }
 
@@ -86,6 +94,7 @@ jobs:
             ${{ env.CMSIS_PACK_ROOT }}/.Web
 
       - name: Install packs
+        shell: bash
         run: |
           printf "${{ inputs.packlist }}" > packlist.txt
           if [ ! -d ${{ env.CMSIS_PACK_ROOT }} ]; then
@@ -104,5 +113,6 @@ jobs:
             ${{ inputs.examples }}
             
       - name: Build examples
+        shell: bash
         run: |
           ./run.sh examples.json
