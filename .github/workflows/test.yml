@@ -1,0 +1,45 @@
+on:
+  workflow_dispatch:
+    inputs:
+      runs-on: 
+        description: Select the runnter type to run the tests on
+        type: choice
+        options:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - macos-14
+          - macos-13
+          - windows-2019
+          - windows-2022
+        default: ubuntu-22.04
+      vcpkg-configuration:
+        description: Configuration to activate
+        type: string
+        default: |
+          {
+            "registries": [
+              {
+                "kind": "artifact",
+                "location": "https://artifacts.tools.arm.com/vcpkg-registry",
+                "name": "arm"
+              }
+            ],
+            "requires": {
+              "arm:tools/open-cmsis-pack/cmsis-toolbox": "^2.0.0-0"
+            }
+          }
+
+jobs:
+  test:
+    name: Compile example
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Create vcpkg-configuration json
+        uses: "DamianReeves/write-file-action@v1.3"
+        with:
+          path: vcpkg-configuration.json
+          write-mode: overwrite
+          contents: ${{ inputs.vcpkg-configuration }}
+
+      - name: Activate vcpkg environment
+        uses: ARM-software/cmsis-actions/vcpkg@v1
