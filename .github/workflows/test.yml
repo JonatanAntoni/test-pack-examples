@@ -28,6 +28,15 @@ on:
               "arm:tools/open-cmsis-pack/cmsis-toolbox": "^2.0.0-0"
             }
           }
+      packlist:
+          description: List of packs to pre-install
+          type: string
+          default: |
+            ARM.CMSIS\n
+            ARM.Cortex_DFP
+
+env:
+  CMSIS_PACK_ROOT: ${{ github.workspace }}/.packs
 
 jobs:
   test:
@@ -39,7 +48,26 @@ jobs:
         with:
           path: vcpkg-configuration.json
           write-mode: overwrite
-          contents: ${{ inputs.vcpkg-configuration }}
+          contents: |
+            ${{ inputs.vcpkg-configuration }}
 
       - name: Activate vcpkg environment
         uses: ARM-software/cmsis-actions/vcpkg@v1
+
+      - name: Cache pack root
+        uses: actions/cache@v4
+        with:
+          key: cmsis-pack-root
+          path: |
+            ${{ env.CMSIS_PACK_ROOT }}/.Download
+            ${{ env.CMSIS_PACK_ROOT }}/.Web
+
+      - name: Install packs
+        run: |
+          printf "${{ inputs.packlist }}" > packlist.txt
+          if [ ! -d ${{ env.CMSIS_PACK_ROOT }} ]; then
+            mkdir -p ${{ env.CMSIS_PACK_ROOT }}
+            cpackget init https://www.keil.com/pack/index.pidx
+          fi
+          cpackget update-index
+          cpackget add -v -a -f packlist.txt
