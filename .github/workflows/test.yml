@@ -47,7 +47,7 @@ on:
             "examples": [ {
               "pack": "NXP::FRDM-K32L2A4S_BSP@18.0.0",
               "project": "boards/frdmk32l2a4s/demo_apps/hello_world/hello_world.csolution.yml",
-              "context": "hello_world.release+ac6"
+              "context": "hello_world.release+mdk"
             } ]
           }
 
@@ -59,6 +59,8 @@ jobs:
     name: Compile example
     runs-on: ${{ inputs.runs-on }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Create vcpkg-configuration json
         uses: "DamianReeves/write-file-action@v1.3"
         with:
@@ -70,12 +72,17 @@ jobs:
       - name: Activate vcpkg environment
         uses: ARM-software/cmsis-actions/vcpkg@v1
 
+      - name: Activate MDK Community License
+        uses: ARM-software/cmsis-actions/armlm@v1
+
       - name: Cache pack root
         uses: actions/cache@v4
         with:
           key: cmsis-pack-root
           path: |
+            ${{ env.CMSIS_PACK_ROOT }}/pack.idx
             ${{ env.CMSIS_PACK_ROOT }}/.Download
+            ${{ env.CMSIS_PACK_ROOT }}/.Local
             ${{ env.CMSIS_PACK_ROOT }}/.Web
 
       - name: Install packs
