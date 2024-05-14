@@ -25,6 +25,11 @@ on:
               }
             ],
             "requires": {
+              "arm:tools/kitware/cmake": "^3.25.2",
+              "arm:tools/ninja-build/ninja": "^1.10.2",
+              "arm:compilers/arm/armclang":"^6.20.0",
+              "arm:compilers/arm/arm-none-eabi-gcc": "^13.2.1",
+              "arm:compilers/arm/llvm-embedded": "^17.0.1-0",    
               "arm:tools/open-cmsis-pack/cmsis-toolbox": "^2.0.0-0"
             }
           }
@@ -34,6 +39,17 @@ on:
           default: |
             ARM.CMSIS\n
             ARM.Cortex_DFP
+      examples:
+        description: Examples to be built
+        type: string
+        default: |
+          {
+            "examples": [ {
+              "pack": "NXP::FRDM-K32L2A4S_BSP@18.0.0",
+              "project": "boards/frdmk32l2a4s/demo_apps/hello_world/hello_world.csolution.yml",
+              "context": "hello_world.release+ac6"
+            } ]
+          }
 
 env:
   CMSIS_PACK_ROOT: ${{ github.workspace }}/.packs
@@ -70,4 +86,16 @@ jobs:
             cpackget init https://www.keil.com/pack/index.pidx
           fi
           cpackget update-index
-          cpackget add -v -a -f packlist.txt
+          cpackget add -a -f packlist.txt
+
+      - name: Create examples json
+        uses: "DamianReeves/write-file-action@v1.3"
+        with:
+          path: examples.json
+          write-mode: overwrite
+          contents: |
+            ${{ inputs.examples }}
+            
+      - name: Build examples
+        run: |
+          ./run.sh examples.json
