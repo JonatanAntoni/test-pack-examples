@@ -67,7 +67,7 @@ jobs:
     name: Compile example
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Create vcpkg-configuration json
         uses: "DamianReeves/write-file-action@v1.3"
